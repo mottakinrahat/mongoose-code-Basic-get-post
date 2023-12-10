@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { Model } from "mongoose";
 
 
@@ -23,10 +24,11 @@ export type TLocalGuardian = {
 };
 export type TStudent = {
   id: string;
+  user:Types.ObjectId,
   password:string;
   name: TUserName;
   gender: 'male' | 'female';
-  dateOfBirth: string;
+  dateOfBirth?: string;
   contactNo: string;
   email: string;
   bloodGroup?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
@@ -35,8 +37,9 @@ export type TStudent = {
   guardian: TGuardian;
   localGuardian: TLocalGuardian;
   profileImage?: string;
-  isActive: 'active' | 'blocked';
+  admissionSemester:Types.ObjectId;
   isDeleted:boolean;
+  academicDepartment:Types.ObjectId;
 };
 //for creating statics
 export interface StudentModel extends Model<TStudent>{

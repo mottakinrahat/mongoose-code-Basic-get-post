@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import { Student } from './student.model';
 import { Schema, model, connect } from 'mongoose';
 import validator from 'validator';
@@ -5,12 +6,9 @@ import {
   TGuardian,
   TLocalGuardian,
   TStudent,
-  StudentMethod,
   StudentModel,
   TUserName,
 } from './student.interface';
-import bcrypt from 'bcrypt';
-import config from '../../config';
 
 const userNameSchema = new Schema<TUserName>({
   firstName: {
@@ -95,11 +93,11 @@ const localGuardianSchema = new Schema<TLocalGuardian>({
 
 const studentSchema = new Schema<TStudent, StudentModel>({
   id: { type: String, required: [true, 'Id is required'], unique: true },
-  password: {
-    type: String,
-    required: [true, 'Password is required'],
+  user: {
+    type: Schema.Types.ObjectId,
+    required: [true, 'user ID is required'],
     unique: true,
-    maxlength: [20, 'Password can not exceed 20 characters'],
+    ref: 'User',
   },
   name: {
     type: userNameSchema,
@@ -128,34 +126,15 @@ const studentSchema = new Schema<TStudent, StudentModel>({
   },
   localGuardian: localGuardianSchema,
   profileImage: { type: String },
-  isActive: {
-    type: String,
-    enum: {
-      values: ['active', 'blocked'],
-      message: '{VALUE} is not a valid status',
-    },
-    default: 'active',
-  },
+  admissionSemester: { type: Schema.Types.ObjectId, ref: 'AcademicSemester'},
   isDeleted: {
     type: Boolean,
     default: false,
   },
-});
-
-studentSchema.pre('save', async function (next) {
-  //hashing password and save into DB
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
-  const user = this;
-  user.password = await bcrypt.hash(
-    user.password,
-    Number(config.bcrypt_salt_round),
-  );
-  next();
-});
-
-studentSchema.post('save', function (doc, next) {
-  doc.password = '';
-  next();
+  academicDepartment: {
+    type: Schema.Types.ObjectId,
+    ref: 'AcademicDepartment',
+  },
 });
 
 //query middleware
